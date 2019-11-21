@@ -51,7 +51,7 @@ Future<TranscriptList> fetchTranscript(String _url) async {
     if (response.statusCode == 200) {
       return TranscriptList.fromJSON(json.decode(response.body));
     } else {
-      throw Exception('Failed to load post');
+      return null;
     }
   }
 
@@ -176,7 +176,7 @@ class VideoTranscriptScreen extends State<VideoTranscript> {
     //Get the transcripts and saves to a local list varible
     fetchTranscript('https://static.chorus.ai/api/'+this.id+'.json').then((result) {
         setState(() {
-          transcriptList = result.getTranscripList();
+          transcriptList = result != null ? result.getTranscripList() : result;
         });
       }
     );
@@ -184,7 +184,10 @@ class VideoTranscriptScreen extends State<VideoTranscript> {
     _controller = VideoPlayerController.network(
       'https://static.chorus.ai/api/'+this.id+'.mp4',
     );
-    _initializeVideoPlayerFuture = _controller.initialize();
+
+    if(_controller != null){
+      _initializeVideoPlayerFuture = _controller.initialize();
+    }
 
     super.initState();
   }
@@ -195,7 +198,7 @@ class VideoTranscriptScreen extends State<VideoTranscript> {
     Widget videoContainer = Container(
       width: MediaQuery.of(context).size.width * 0.6,
       child: FutureBuilder(
-        future: _initializeVideoPlayerFuture,
+        future: _initializeVideoPlayerFuture != null ? _initializeVideoPlayerFuture : null,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return Column(
